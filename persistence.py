@@ -67,9 +67,19 @@ _cache = {}
 @connection_handler
 def _retrieve_from_db(cursor, table):
 
-    cursor.execute(f'SELECT * FROM {table}')
+    query = f"SELECT * FROM {table}"
+    if table == 'board':
+        query += ' ORDER BY id DESC'
+    cursor.execute(query)
     data = cursor.fetchall()
     return data
+
+
+@connection_handler
+def save_board_to_db(cursor, board_name):
+    query = "INSERT INTO board (title) VALUES (%s)"
+    cursor.execute(query, (board_name, ))
+    return True
 
 
 def _get_data(data_type, table, force):
