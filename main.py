@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template, url_for, request, jsonify
 from util import json_response
 
 import data_handler
@@ -31,6 +31,13 @@ def get_cards_for_board(board_id: int):
     :param board_id: id of the parent board
     """
     return data_handler.get_cards_for_board(board_id)
+
+
+@app.route("/save-board", methods=['POST'])
+@json_response
+def save_board_to_db():
+    is_query = data_handler.save_board(request.json)
+    return is_query
 
 
 def main():
