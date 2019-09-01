@@ -1,5 +1,5 @@
 // It uses data_handler.js to visualize elements
-import { dataHandler } from "./data_handler.js";
+import {dataHandler} from "./data_handler.js";
 
 export let dom = {
     _appendToElement: function (elementToExtend, textToAppend, prepend = false) {
@@ -9,42 +9,38 @@ export let dom = {
 
         for (let childNode of fakeDiv.childNodes) {
             if (prepend) {
-                elementToExtend.prependChild(childNode);
+                elementToExtend.prepend(childNode);
             } else {
                 elementToExtend.appendChild(childNode);
             }
         }
 
-        return elementToExtend.lastChild;
+        console.log(elementToExtend.lastChild);
     },
     init: function () {
-        // This function should run once, when the page is loaded.
+        this.addNewBoard()
     },
     loadBoards: function () {
-        // retrieves boards and makes showBoards called
-        dataHandler.getBoards(function(boards){
-            dom.showBoards(boards);
+        // retrieves boards and makes createBoards called
+        dataHandler.getBoards(function (boards) {
+            dom.createBoards(boards);
         });
     },
-    showBoards: function (boards) {
+    createBoards: function (boards) {
         // shows boards appending them to #boards div
         // it adds necessary event listeners also
-
-        let boardList = '';
-
-        for(let board of boards){
-            boardList += `
-                <li>${board.title}</li>
-            `;
+        const boardDiv = document.querySelector('.board-container');
+        for (let i = 1; i < boards.length; i++) {
+            const boardTemplateClone = document.querySelector('section').cloneNode(true);
+            boardDiv.appendChild(boardTemplateClone)
         }
 
-        const outerHtml = `
-            <ul class="board-container">
-                ${boardList}
-            </ul>
-        `;
+        const createdBoards = document.querySelectorAll('section');
+        createdBoards.forEach((b, i) => {
+            b.firstElementChild.firstElementChild.innerHTML = boards[i].title
+        });
+        boardDiv.hidden = false;
 
-        this._appendToElement(document.querySelector('#boards'), outerHtml);
     },
     loadCards: function (boardId) {
         // retrieves cards and makes showCards called
@@ -53,5 +49,21 @@ export let dom = {
         // shows the cards of a board
         // it adds necessary event listeners also
     },
-    // here comes more features
+    addNewBoard: function () {
+        document.querySelector('#submit-new-board').addEventListener('click', () => {
+            const boardName = document.querySelector('#board-name').value;
+            const newBoard = `
+                        <section class="board">
+                            <div class="board-header"><span class="board-title">${boardName}</span>
+                                <button class="board-add">Add Card</button>
+                                <button class="board-toggle"><i class="fas fa-chevron-down"></i></button>
+                            </div>
+                        </section>`;
+            this._appendToElement(document.querySelector('.board-container'), newBoard, true);
+            dataHandler.createNewBoard(boardName, function(response) {
+                console.log(response)
+            })
+        })
+
+    }
 };
